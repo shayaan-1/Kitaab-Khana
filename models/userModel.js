@@ -26,6 +26,13 @@ const getUserById = async (id) => {
   return rows[0];
 };
 
+const getUserByEmail = async (email) => {
+    // Code to find a user by email
+    const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+    return result.rows[0];
+  };
+  
+
 const updateUser = async (id, updates) => {
   const { name, phoneNumber, city, profileImageUrl } = updates;
   const queryText = `
@@ -44,4 +51,4 @@ const deleteUser = async (id) => {
   return rowCount;
 };
 
-module.exports = { createUser, getUserById, updateUser, deleteUser };
+module.exports = { createUser, getUserById, updateUser, deleteUser, getUserByEmail };
