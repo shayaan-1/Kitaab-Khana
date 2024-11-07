@@ -2,14 +2,14 @@
 const { createBook, getBookById, updateBook, deleteBook, searchBooks } = require("../models/bookModel");
   
   const createBookController = async (req, res) => {
-    try {
-      const book = { ...req.body, owner_id: req.user.id };
-      const newBook = await createBook(book);
-      res.status(201).json(newBook);
-    } catch (error) {
-      res.status(500).json({ message: "Error creating book", error });
-    }
-  };
+  try {
+    const book = { ...req.body, owner_id: req.user.id };
+    const newBook = await createBook(book);
+    res.status(201).json(newBook);
+  } catch (error) {
+    res.status(500).json({ message: "Error creating book", error });
+  }
+};
   
   const getBookController = async (req, res) => {
     try {
