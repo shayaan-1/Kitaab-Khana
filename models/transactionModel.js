@@ -49,10 +49,20 @@ const getTransactionById = async (transactionId) => {
     }
 };
 
+const createSaleTransaction = async ({ saleId, userId, bookId, amount, status, paymentIntentId }) => {
+    const result = await db.query(
+        `INSERT INTO transactions (user_id, book_id, sale_id, transaction_type, amount, status, payment_intent_id)
+         VALUES ($1, $2, $3, 'sale', $4, $5, $6) RETURNING *`,
+        [userId, bookId, saleId, amount, status, paymentIntentId]
+    );
+    return result.rows[0];
+};
+
 module.exports = {
     createTransaction,
     updateTransactionStatus,
     updateTransactionStatusByRentalId,
     getTransactionById,
-    getTransactionByRentalId // Make sure this is exported
+    getTransactionByRentalId,
+    createSaleTransaction
 };

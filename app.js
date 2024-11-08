@@ -19,7 +19,7 @@ app.use("/api/users", userRoutes);
 app.use('/api/auth', authRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/rental", authenticateUser.authenticateUser ,rentalRoutes);
-app.use("/api/sale",saleRoutes);
+app.use("/api/sales",saleRoutes);
 
 
 

@@ -57,6 +57,15 @@ const updateBookAvailability = async (bookId, availability) => {
   return result.rows[0];
 };
 
+// Update book ownership
+const updateBookOwner = async (bookId, newOwnerId) => {
+  const result = await db.query(
+      `UPDATE books SET owner_id = $1, availability_status = $2 WHERE id = $3 RETURNING *`,
+      [newOwnerId, "false", bookId]
+  );
+  return result.rows[0];
+};
+
 module.exports = {
   createBook,
   getBookById,
@@ -64,5 +73,6 @@ module.exports = {
   deleteBook,
   searchBooks,
   updateBookAvailability,
-  getRentalPriceById
+  getRentalPriceById,
+  updateBookOwner
 };

@@ -97,10 +97,7 @@ exports.processPayment = async (req, res) => {
             // Update book availability to false (book is rented)
             await bookModel.updateBookAvailability(rental.book_id, false);
 
-            // Now, trigger rental completion (i.e., mark rental as "completed")
-            await rentalModel.updateRentalStatus(transaction.rental_id, "completed");
-
-            res.status(200).json({ message: "Payment successful, rental is now completed", transaction: updatedTransaction });
+            res.status(200).json({ message: "Payment successful, rental is now active", transaction: updatedTransaction });
         } else {
             res.status(400).json({ message: "Payment failed", status: paymentIntent.status });
         }
