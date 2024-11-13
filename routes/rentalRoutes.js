@@ -11,5 +11,8 @@ router.post("/approve/:rentalId", rentalController.approveRental);
 // Process payment
 router.post("/payment", rentalController.processPayment);
 
+//return rental
+router.post("/return/:rentalId", rentalController.returnRental); // New route for returning a rental
+
 
 module.exports = router;

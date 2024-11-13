@@ -3,6 +3,7 @@ const rentalModel = require("../models/rentalModel");
 const transactionModel = require("../models/transactionModel");
 const bookModel = require("../models/bookModel"); // Add this to interact with the book data
 const handlePayment = require("../middlewares/paymentMiddleware"); // Import your middleware
+const dayjs = require("dayjs"); // Import dayjs for date manipulation
 
 
 // Request a rental for a book
@@ -42,8 +43,8 @@ exports.approveRental = async (req, res) => {
 
     // Proceed to create the payment intent with the provided data (handled by middleware)
     req.body = {  // Attach necessary information to the request body
-        amount: rentalFee * 100,  // Convert rental fee to cents
-        currency: 'usd',  // Your preferred currency
+        amount: rentalFee * 100,  
+        currency: 'usd',  
         customerId: req.user.stripeCustomerId,  // Customer's Stripe ID
         paymentMethodId: req.user.stripe_default_payment_method,  // Customer's default payment method
     };
@@ -103,5 +104,45 @@ exports.processPayment = async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({ message: "Error processing payment", error: error.message });
+    }
+};
+
+exports.returnRental = async (req, res) => {
+    try {
+        const { rentalId } = req.params;
+        const { returnDate } = req.body; // Getting the return date from the request body
+
+        // Get the rental record by ID
+        const rental = await rentalModel.getRentalById(rentalId);
+        if (!rental) {
+            return res.status(404).json({ message: "Rental not found" });
+        }
+
+        // Check if the rental status is active
+        if (rental.status !== "active") {
+            return res.status(400).json({ message: "Rental cannot be returned as it is not currently active." });
+        }
+
+        // Convert the returnDate from the request body to a dayjs object
+        const returnDayjs = dayjs(returnDate);
+        const rentalEndDate = dayjs(rental.rental_end_date);
+
+        // Calculate late days and late fee
+        let lateFee = 0;
+        const lateDays = returnDayjs.isAfter(rentalEndDate) ? returnDayjs.diff(rentalEndDate, "day") : 0;
+
+        if (lateDays > 0) {
+            const lateFeePerDay = 5; // Example late fee per day
+            lateFee = lateDays * lateFeePerDay;
+        }
+
+        // Update the rental status to 'completed', set the return date, and store the late fee
+        await rentalModel.updateRentalStatus(rentalId, "completed", returnDayjs.toDate(), lateFee);
+
+        // Return the response with the late fee
+        return res.json({ message: "Rental returned successfully", lateFee });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Error returning rental", error: error.message });
     }
 };

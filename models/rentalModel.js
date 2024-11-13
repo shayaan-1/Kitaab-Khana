@@ -51,12 +51,13 @@ const getRentalById = async (rentalId) => {
 };
 
 
-const updateRentalStatus = async (id, status) => {
-    const result = await db.query(
-        `UPDATE rentals SET status = $1 WHERE id = $2 RETURNING *`,
-        [status, id]
-    );
-    return result.rows[0];
+const updateRentalStatus = async (id, status, returnDate = null, lateFee = 0) => {
+    const query = returnDate
+        ? `UPDATE rentals SET status = $1, return_date = $2, late_fee = $3 WHERE id = $4 RETURNING *`
+        : `UPDATE rentals SET status = $1 WHERE id = $2 RETURNING *`;
+    const values = returnDate ? [status, returnDate, lateFee, id] : [status, id];
+
+    return (await db.query(query, values)).rows[0];
 };
 
 
